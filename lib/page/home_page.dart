@@ -18,27 +18,28 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late VideoPlayerController _controller;
   AudioPlayer player = AudioPlayer();
-
+  bool _zoom = false;
   double _opacity = 0;
   late Animation<Offset> animation;
   late Animation<Offset> animationBottom;
   late AnimationController animationController;
+
   @override
   void initState() {
-    _opacity = 0;
-
+    _zoom = false;
     loadVideoPlayer();
-
 
     animationController = AnimationController(
       vsync: this,
       duration: Duration(seconds: 2),
     );
 
-    animation = Tween<Offset>(begin: Offset(0, -1.5), end: Offset.zero) //negative to go upwards
+    animation = Tween<Offset>(
+            begin: Offset.zero, end: Offset(0, -1.5)) //negative to go upwards
         .animate(animationController);
 
-    animationBottom = Tween<Offset>(begin: Offset(0, 1.5), end: Offset.zero) //negative to go upwards
+    animationBottom = Tween<Offset>(
+            begin: Offset.zero, end: Offset(0, 1.5)) //negative to go upwards
         .animate(animationController);
     super.initState();
   }
@@ -51,15 +52,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         VideoPlayerController.asset('assets/videos/Video2_MainMenu.mp4');
 
     _controller.addListener(() {
-      setState(() {});
+      if (_zoom) {
+        setState(() {});
+      }
     });
     _controller.initialize().then((value) {
       _controller.setLooping(true);
       _controller.play();
       setState(() {
-
         _opacity = 1;
-        animationController.forward();
+        //animationController.forward();
       });
     });
   }
@@ -104,9 +106,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           Container(
               child: GestureDetector(
                   onTap: () {
+                    //Future.delayed(Duration(seconds: 1), () {
                     setState(() {
-                      menuZoom();
+                      Future.delayed(Duration(seconds: 1), () {
+                        menuZoom();
+                        player.stop();
+                      });
+                      _zoom = true;
 
+                      //});
                     });
                   },
                   child: AspectRatio(
@@ -131,16 +139,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   position: animation,
                   child: AnimatedOpacity(
                       opacity: _opacity,
-                      duration: const Duration(seconds: 2),
+                      duration: const Duration(seconds: 0),
                       child: Image.asset('assets/images/Titles1.jpeg')))),
           Align(
               alignment: Alignment.bottomCenter,
               child: SlideTransition(
                   position: animationBottom,
-
                   child: AnimatedOpacity(
                     opacity: _opacity,
-                    duration: const Duration(seconds: 2),
+                    duration: const Duration(seconds: 0),
                     child: GestureDetector(
                       onTap: () {
                         setState(() {
@@ -159,7 +166,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   menuZoom() {
-
     _controller =
         VideoPlayerController.asset('assets/videos/Video3_MainMenuZoom.mp4');
     // Initialize the controller and store the Future for later use.
@@ -168,26 +174,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       _controller.play();
       setState(() {
         _opacity = 0;
-
       });
     });
     _controller.addListener(() {
       setState(() {
-        animationController.reverse();
+        animationController.forward();
         if (_controller.value.position == _controller.value.duration) {
-          player.stop();
-
-
-            Navigator.pushAndRemoveUntil(context,
-                MaterialPageRoute(builder: (context) => LocalAndWebObjectsWidget()), (e) => false);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => LocalAndWebObjectsWidget()),
+              (e) => false);
 
           //_createRoute();
         }
       });
     });
   }
-
-
 }
 
 void _launchURL() async {

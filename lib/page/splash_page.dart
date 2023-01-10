@@ -28,21 +28,39 @@ class _SplashPageState extends State<SplashPage> {
 
     _controller = VideoPlayerController.asset("assets/videos/Video1_Logo.mp4");
     _controller.initialize().then((_) {
-      _controller.setLooping(true);
+      _controller.setLooping(false);
       _controller.play();
       _visible = true;
-      Timer(Duration(milliseconds: 1000), () {
+      //Timer(Duration(milliseconds: 1000), () {
         setState(() {
 
         });
+      //});
+      _controller.addListener(() {
+        print(_controller.value.duration);
+        if (_controller.value.position == _controller.value.duration) {
+
+          setState(() {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomePage()),
+                    (e) => false);
+          });
+
+
+          //_createRoute();
+        }
+
       });
     });
 
-    Future.delayed(Duration(seconds: 4), () {
-      _controller.dispose();
-      Navigator.pushAndRemoveUntil(context,
-          MaterialPageRoute(builder: (context) => HomePage()), (e) => false);
-    });
+    //
+    // Future.delayed(Duration(seconds: 4, milliseconds: 30), () {
+    //  // _controller.dispose();
+    //   Navigator.pushAndRemoveUntil(context,
+    //       MaterialPageRoute(builder: (context) => HomePage()), (e) => false);
+    // });
   }
 
   @override
@@ -55,9 +73,9 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   _getVideoBackground() {
-    return AnimatedOpacity(
-      opacity: _visible ? 1.0 : 0.0,
-      duration: Duration(milliseconds: 1000),
+    return Container(
+     // opacity: _visible ? 1.0 : 0.0,
+      //duration: Duration(milliseconds: 1000),
       child: VideoPlayer(_controller),
     );
   }
